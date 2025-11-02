@@ -3,13 +3,13 @@ import bg from "../assets/bg1.png"
 import { IoMdEye } from "react-icons/io";
 import { IoMdEyeOff } from "react-icons/io";
 import { useNavigate } from 'react-router-dom'
-import { userDataContext } from '../context/UserContext.jsx';
+import { userDataContext } from '../context/userContext';
 import axios from "axios"
 
 const SignIn = () => {
 const [showPassword, setShowPassword] = useState(false)
 
-const { serverUrl } = useContext(userDataContext);
+const { serverUrl,userData,setUserData } = useContext(userDataContext);
 
   const navigate = useNavigate();
   const [email, setEmail] = useState("")
@@ -26,10 +26,12 @@ const { serverUrl } = useContext(userDataContext);
         {  email, password }, 
         { withCredentials: true }
       )
-      console.log(result)
+      setUserData(result.data)
       setLoding(false)
+      navigate('/')
     } catch (error) {
       console.log(error)
+      setUserData(null)
       setLoding(false)
       setErr(error.response.data.message)
       

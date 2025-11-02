@@ -9,7 +9,7 @@ import axios from "axios"
 const SignUp = () => {
 const [showPassword, setShowPassword] = useState(false)
 
-const { serverUrl } = useContext(userDataContext);
+const { serverUrl,userData,setUserData} = useContext(userDataContext);
 
   const navigate = useNavigate();
   const [name, setName] = useState("")
@@ -27,10 +27,12 @@ const { serverUrl } = useContext(userDataContext);
         { name, email, password }, 
         { withCredentials: true }
       )
-      console.log(result)
+     setUserData(result.data)
       setLoding(false)
+      navigate('/customize')
     } catch (error) {
       console.log(error)
+      setUserData(null)
       setLoding(false)
       setErr(error.response.data.message)
     }
