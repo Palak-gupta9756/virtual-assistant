@@ -15,17 +15,24 @@ const { serverUrl } = useContext(userDataContext);
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const[loading,setLoding]=useState(false)
+  const[err,setErr]=useState("")
 
   const handleSignUp = async (e) => {
     e.preventDefault()
+    setErr("")
+    setLoding(true)
     try {
       const result = await axios.post(`${serverUrl}/api/auth/signup`, 
         { name, email, password }, 
         { withCredentials: true }
       )
       console.log(result)
+      setLoding(false)
     } catch (error) {
       console.log(error)
+      setLoding(false)
+      setErr(error.response.data.message)
     }
   }
   return (
@@ -42,7 +49,10 @@ const { serverUrl } = useContext(userDataContext);
           {!showPassword && <IoMdEye className='absolute top-[15px] right-[20px] cursor-pointer text-[white] w-[25px] h-[25px]' onClick={() => setShowPassword(true)} />}
           {showPassword && <IoMdEyeOff className='absolute top-[15px] right-[20px] cursor-pointer text-[white] w-[25px] h-[25px]' onClick={() => setShowPassword(false)} />}
         </div>
-        <button className='w-[150px] h-[60px] mt-[30px] bg-white rounded-full text-black font-bold text-[19px] '>Sign Up</button>
+        {err.length>0 && <p className='text-red-500 text-[17px]'>
+          *{err}
+          </p>}
+        <button className='w-[150px] h-[60px] mt-[30px] bg-white rounded-full text-black font-bold text-[19px] ' disabled={loading}>{loading?"Loading...":"Sign Up"}</button>
         <p className='text-white text-[18px] cursor-pointer' onClick={() => navigate('/signin')}>Already have an account ? <span className='text-blue-500'>Sign In</span></p>
       </form>
     </div>
