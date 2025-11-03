@@ -10,6 +10,7 @@ import image6 from "../assets/image6.png"
 import image7 from "../assets/image7.png"
 import { userDataContext } from '../context/userContext';
 import { useNavigate } from 'react-router-dom';
+import { IoMdArrowRoundBack } from "react-icons/io";
 
 const Customize = () => {
     const { serverUrl,userData,setUserData,backendImage,setBackendImage,frontendImage,setFrontendImage,selectedImage,setSelectedImage}=useContext(userDataContext)
@@ -22,7 +23,8 @@ const Customize = () => {
     }
     
     return (
-        <div className='w-full h-[100vh] bg-gradient-to-t from-[black] to-[#030353] flex justify-center items-center flex-col'>
+        <div className='w-full h-[100vh] bg-gradient-to-t from-[black] to-[#030353] flex justify-center items-center flex-col relative'>
+             <IoMdArrowRoundBack  className='absolute top-[30px] left-[30px] text-white w-[25px] h-[25px] cursor-pointer' onClick={()=>navigate('/')}/>
             <h1 className='text-white text-[35px] text-center mb-[40px]'>Select your <span className='text-blue-300'>Assistant Image </span></h1>
             <div className='w-[90%] max-w-[60%] flex justify-center items-center flex-wrap gap-[30px]'>
                 <Card image={image1} />
