@@ -52,6 +52,10 @@ export const askToAssistant =async(req,res)=>{
  try {
   const {command}=req.body
   const user=await User.findById(req.userId);
+ 
+  /* user.history.push(command);
+    await user.save();*/
+
   const userName=user.name
   const assistantName=user.assistantName
   const result=await geminiResponse(command,assistantName,userName)
@@ -93,10 +97,11 @@ export const askToAssistant =async(req,res)=>{
       case 'youtube-play':
       case 'general':
       case "calculator-open":
+      case "youtube-open":
       case "instagram-open":
       case "facebook-open":
-     case "weather-show":
-       return res. json({
+      case "weather-show":
+      return res. json({
            type,
            userInput: gemResult.userInput,
           response: gemResult.response,
@@ -109,3 +114,4 @@ export const askToAssistant =async(req,res)=>{
   return res.status(500).json({response:"ask assistant error "})
  }
 }
+
