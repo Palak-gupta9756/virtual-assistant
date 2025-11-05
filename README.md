@@ -30,10 +30,10 @@ It can listen to user voice commands, understand context, and perform various ta
 
 | Layer | Technology |
 |--------|-------------|
-| **Frontend** | React.js, TailwindCSS / CSS |
+| **Frontend** | React.js, TailwindCSS |
 | **Backend** | Node.js, Express.js |
 | **Database** | MongoDB Atlas |
-| **AI/ML Integration** | Gemini API / OpenAI API |
+| **AI/ML Integration** | Gemini API |
 | **Deployment** | Render (Frontend + Backend) |
 | **Version Control** | Git & GitHub |
 
