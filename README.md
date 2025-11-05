@@ -1,7 +1,8 @@
 # 🤖 AI Virtual Assistant (MERN Stack)
 
-An intelligent **AI-powered Virtual Assistant** web application built using the **MERN stack (MongoDB, Express.js, React.js, Node.js)**.  
-It can listen to user voice commands, understand context, and perform various tasks like searching on Google or YouTube, providing time/date, fetching weather, and more.
+An intelligent **AI-Powered Virtual Assistant** web application that **listens to your voice, understands your commands, and speaks back intelligently**.  
+Built using the **MERN stack (MongoDB, Express.js, React.js, Node.js)**, it combines **Speech Recognition**, **Speech Synthesis**, and **AI text understanding** to provide a natural human-like interaction experience.
+
 
 ---
 
