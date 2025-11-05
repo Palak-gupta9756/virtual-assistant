@@ -22,7 +22,7 @@ Built using the **MERN stack (MongoDB, Express.js, React.js, Node.js)**, it comb
 ✅ Date, time, and calendar queries  
 ✅ Personalized greeting and dynamic responses  
 ✅ Modern, responsive, and animated UI  
-✅ Secure authentication with JWT (if added)  
+✅ Secure authentication with JWT  
 ✅ MongoDB database for user data and history storage  
 
 ---
