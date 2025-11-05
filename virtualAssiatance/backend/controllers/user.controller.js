@@ -52,9 +52,6 @@ export const askToAssistant =async(req,res)=>{
  try {
   const {command}=req.body
   const user=await User.findById(req.userId);
- 
-  /* user.history.push(command);
-    await user.save();*/
 
   const userName=user.name
   const assistantName=user.assistantName
@@ -90,7 +87,7 @@ export const askToAssistant =async(req,res)=>{
         return res.json({
         type,
         userInput:gemResult.userInput,
-        response:`Today is  ${moment().format("MMMM")}`
+        response:`Current Month is  ${moment().format("MMMM")}`
       });
       case 'google-search':
       case 'youtube-search':

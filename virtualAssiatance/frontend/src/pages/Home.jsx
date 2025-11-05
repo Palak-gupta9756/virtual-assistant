@@ -7,6 +7,8 @@ import { useEffect } from 'react'
 import { useState } from 'react'
 import ai from "../assets/ai.gif"
 import userImage from "../assets/user1.gif"
+import { IoMdMenu } from "react-icons/io";
+import { RxCross2 } from "react-icons/rx";
 
 function Home() {
   const navigate=useNavigate()
@@ -15,7 +17,9 @@ function Home() {
   const [userText,setUserText]=useState("")
   const [aiText,setAiText]=useState("")
   const isSpeakingRef=useRef(false)
+  const [ham,setHam]=useState(false)
   const recognitionRef=useRef(null)
+  const isRecognitingRef=useRef(false)
   const synth=window.speechSynthesis
   const handleLogOut=async()=>{
     try {
@@ -80,88 +84,97 @@ const handleCommand = (data) => {
   }
 };
 
-  useEffect(()=>{
-    const SpeechRecognition=window.SpeechRecognition || window.webkitSpeechRecognition
+  useEffect(() => {
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = new SpeechRecognition();
 
-    const recognition=new SpeechRecognition()
-    recognition.continuous=true,
-    recognition.lang='en-US'
+  recognition.continuous = true;
+  recognition.lang = "en-US";
 
-    recognitionRef.current=recognition
-    const isRecognitingRef={current:false}
+  recognitionRef.current = recognition;
 
-    const safeRecognition=()=>{
-      if(!isSpeakingRef.current && !isRecognitingRef.current){
-       try {
-         recognition.start()
-         console.log("Recognition request to start");
-       } catch (err) {
-        if(err.name !=="InvalidStateError"){
-          console.log("start error:",err);
-        }
-       }
+  const safeRecognition = () => {
+    const rec = recognitionRef.current;
+    if (!rec) return;
+
+    if (isRecognitingRef.current || listening) return; 
+    if (isSpeakingRef.current) return; 
+
+    try {
+      rec.start();
+      console.log("Recognition started safely");
+    } catch (err) {
+      if (err.name !== "InvalidStateError") {
+        console.error("Recognition start error:", err);
       }
     }
+  };
 
-    recognition.onStart=()=>{
-      isRecognitingRef.current=true;
-      setListening(true);
-    };
+  recognition.onstart = () => {
+    isRecognitingRef.current = true;
+    setListening(true);
+    console.log("Recognition started");
+  };
 
-    recognition.onend=()=>{
-      isRecognitingRef.current=false;
+  recognition.onend = () => {
+    isRecognitingRef.current = false;
+    setListening(false);
+    console.log("Recognition ended");
+
+    if (!isSpeakingRef.current) {
+      setTimeout(safeRecognition, 1000);
+    }
+  };
+
+  recognition.onerror = (event) => {
+    console.warn("Recognition error:", event.error);
+    isRecognitingRef.current = false;
+    setListening(false);
+
+    if (event.error !== "aborted" && !isSpeakingRef.current) {
+      setTimeout(safeRecognition, 1500);
+    }
+  };
+
+  recognition.onresult = async (e) => {
+    const transcript = e.results[e.results.length - 1][0].transcript.trim();
+    console.log("Heard:", transcript);
+
+    if (
+      userData &&
+      transcript.toLowerCase().includes(userData.assistantName.toLowerCase())
+    ) {
+      setAiText("");
+      setUserText(transcript);
+
+      recognition.stop();
+      isRecognitingRef.current = false;
       setListening(false);
 
-      if(!isSpeakingRef.current){
-        setTimeout(()=>{
-          safeRecognition();
-        },1000);
+      try {
+        const data = await getGeminiResponse(transcript);
+        console.log("Assistant Response:", data);
+        handleCommand(data);
+        setAiText(data.response);
+        setUserText("");
+      } catch (err) {
+        console.error("Assistant error:", err);
+        setAiText("Sorry, something went wrong!");
       }
-    };
-
-    recognition.onerror=(event)=>{
-      console.warn("Recognition error",event.error)
-      isRecognitingRef.current=false;
-      setListening(false)
-      if(event.error !=="aborted" && !isSpeakingRef.current){
-        setTimeout(()=>{
-          safeRecognition();
-        },1000);
-      }
-    };
-
-    recognition.onresult=async(e)=>{
-     const transcript=e.results[e.results.length-1][0].transcript.trim()
-     console.log("heard:" +transcript)
-     if(transcript.toLowerCase().includes(userData.assistantName.toLowerCase())){
-      setAiText("")
-      setUserText(transcript)
-      recognition.stop()
-      isRecognitingRef.current=false
-      setListening(false)
-       const data=await getGeminiResponse(transcript)
-       console.log(data)
-       handleCommand(data)
-       setAiText(data.response)
-       setUserText("")
-     }
     }
-    const fallback=setInterval(()=>{
-       if(!isSpeakingRef.current && !isRecognitingRef.current){
-        safeRecognition();
-       }
-    },10000)
+  };
 
-    safeRecognition()
+  safeRecognition();
 
-    return ()=>{
-      recognition.stop()
-      setListening(false)
-      isRecognitingRef.current=false
-      clearInterval(fallback)
-    }
-  
-  },[])
+  return () => {
+    recognition.stop();
+    setListening(false);
+    isRecognitingRef.current = false;
+    console.log("Recognition stopped and cleaned up");
+  };
+}, []);
+
 
   useEffect(() => {
     const resumeSpeech = () => {
@@ -174,14 +187,25 @@ const handleCommand = (data) => {
   
   return (
     <div className='w-full h-[100vh] bg-gradient-to-t from-[black] to-[#030353] flex justify-center items-center flex-col gap-[15px]'>
-       <button className='min-w-[150px] cursor-pointer absolute h-[60px] mt-[30px] top-[20px] right-[20px] bg-white rounded-full text-black font-bold text-[19px]' onClick={handleLogOut}>Log out</button>
-        <button className='min-w-[150px] cursor-pointer h-[60px] absolute top-[100px] right-[20px] mt-[30px] bg-white rounded-full text-black font-bold text-[19px] px-[15px] py-[5px] ' onClick={()=>navigate('/customize')}>Customize your assistant</button>
+      <IoMdMenu  className=' h-[30px] w-[30px] lg:hidden text-white absolute top-[20px] right-[20px] w-[25px] font-[30px]' onClick={()=>setHam(true)}/>
+      <div className={`absolute top-0 h-full w-full bg-[#0000004a] backdrop-blur-lg gap-[20px] p-[20px] flex flex-col items-start ${ham?"translate-x-0":"translate-x-full" } transition-transform`}>
+        <RxCross2 className=' h-[30px] w-[30px] lg:hidden text-white absolute top-[20px] right-[20px] w-[25px] font-[30px]' onClick={()=>setHam(false)}/>
+        <button className='min-w-[150px] cursor-pointer  lg:hidden h-[60px] mt-[30px] top-[20px] 
+       right-[20px] bg-white rounded-full text-black font-bold text-[19px]' onClick={handleLogOut}>Log out</button>
+        <button className='min-w-[150px] lg:hidden cursor-pointer  h-[60px]  top-[100px] right-[20px] mt-[30px] bg-white rounded-full text-black font-bold text-[19px] px-[15px] py-[5px] ' onClick={()=>navigate('/customize')}>Customize your assistant</button>
+     
+      </div>
+       <button className='min-w-[150px] cursor-pointer hidden lg:block absolute h-[60px] mt-[30px] top-[20px] 
+       right-[20px] bg-white rounded-full text-black font-bold text-[19px]' onClick={handleLogOut}>Log out</button>
+        <button className='min-w-[150px] cursor-pointer hidden lg:block h-[60px] absolute top-[100px] right-[20px] mt-[30px] bg-white rounded-full text-black font-bold text-[19px] px-[15px] py-[5px] ' onClick={()=>navigate('/customize')}>Customize your assistant</button>
       <div className='w-[300px] h-[400px] flex justify-center items-center overflow-hidden rounded-4xl shadow-lg'>
          <img src={userData?.assistantImage} className='h-full object-cover'/>
       </div>
       <h1 className='text-white text-[19px] font-semibold'>I'm {userData?.assistantName}</h1>
       {!aiText && <img src={userImage} className='w-[200px]'/>}
       {aiText && <img src={ai} className='w-[200px]'/>}
+
+      <h1 className='text-white text-[20px] font-semibold text-wrap'>{userText?userText:aiText?aiText:null}</h1>
     </div>
   )
 }
