@@ -6,12 +6,6 @@ Built using the **MERN stack (MongoDB, Express.js, React.js, Node.js)**, it comb
 
 ---
 
-## 🚀 Live Demo
-
-🔗 **Deployed on Render:** https://virtualassistant-0nky.onrender.com
-
-
----
 
 ## 📜 Features
 
@@ -45,4 +39,13 @@ Built using the **MERN stack (MongoDB, Express.js, React.js, Node.js)**, it comb
 **👤 Palak Gupta**
 
 **❤️ Made with love, creativity, and passion by Palak Gupta.**
+
+---
+
+## 🚀 Live Demo
+
+🔗 **Deployed on Render:** https://virtualassistant-0nky.onrender.com
+
+
+---
 
